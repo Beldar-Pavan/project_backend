@@ -1,32 +1,9 @@
-import { Router } from "express";
-import { getCurrentUser, getUserChannelProfile, loginUser, logoutUser, registerUser, updateUserCoverImage } from "../controllers/user.controller.js";
-import { upload } from "../middlewares/multer.middlewares.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import express from "express";
+import { getUsers, createUser } from "../controllers/user.controller.js";
 
-const router = Router()
+const router = express.Router();
 
-router.route("/register").post(
-    upload.fields([
-        {
-            name: "avatar",
-            maxCount: 1
-        },
-        {
-            name: "coverImage",
-            maxCount: 1
-        }
-    ]), 
-    registerUser
-)
-
-router.route("/login").post(loginUser)
-
-router.route("/logout").post(verifyJWT, logoutUser)
-
-router.route("/current-user").get(verifyJWT, getCurrentUser)
-
-router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
-
-router.route("/c/:username").get(verifyJWT, getUserChannelProfile)
+router.get("/getuser", getUsers);
+router.post("/create-user", createUser);
 
 export default router;

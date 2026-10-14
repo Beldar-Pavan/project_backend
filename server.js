@@ -1,9 +1,6 @@
 import express from "express";
 import cors from "cors";
 
-const express = express()
-const cors = cors()
-
 const app = express();
 app.use(cors({ origin: "http://localhost:8080" }));
 app.use(express.json());
