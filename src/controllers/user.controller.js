@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
 
 const getUsers = async (req, res) => {
@@ -5,7 +7,7 @@ const getUsers = async (req, res) => {
     const users = await User.find().select("-password");
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: error.message});
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -35,4 +37,43 @@ const registerUser = async (req, res) => {
   }
 };
 
-export { getUsers, registerUser };
+const loginUser = async (req, res) => {
+  try {
+    const { email, username, password } = req.body;
+
+    if ((!email && !username) || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email or username and password are required" });
+    }
+
+    const user = await User.findOne({ $or: [{ email }, { username }] });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export { getUsers, registerUser, loginUser };
