@@ -42,11 +42,13 @@ const getCommentsByPost = async (req, res) => {
     const { postId } = req.params;
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
- 
+
     if (!isValidId(postId)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
- 
+
     const [comments, total] = await Promise.all([
       Comment.find({ video: postId })
         .populate("owner", "username email")
@@ -55,7 +57,7 @@ const getCommentsByPost = async (req, res) => {
         .limit(limit),
       Comment.countDocuments({ video: postId }),
     ]);
- 
+
     return res.status(200).json({
       success: true,
       page,
@@ -73,28 +75,36 @@ const updateComment = async (req, res) => {
   try {
     const { commentId } = req.params;
     const { content } = req.body;
- 
+
     if (!isValidId(commentId)) {
-      return res.status(400).json({ success: false, message: "Invalid comment id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid comment id" });
     }
- 
+
     if (!content || !content.trim()) {
-      return res.status(400).json({ success: false, message: "Comment content is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Comment content is required" });
     }
- 
+
     const comment = await Comment.findById(commentId);
- 
+
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     if (comment.owner.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not allowed to edit this comment" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not allowed to edit this comment" });
     }
- 
+
     comment.content = content.trim();
     await comment.save();
- 
+
     return res.status(200).json({
       success: true,
       message: "Comment updated successfully",
@@ -105,6 +115,5 @@ const updateComment = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
- 
+
 export { createComment, getCommentsByPost, updateComment };
- 

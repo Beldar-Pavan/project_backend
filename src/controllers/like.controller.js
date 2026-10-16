@@ -9,7 +9,10 @@ export const toggleLike = async (req, res) => {
     const userId = req.user._id || req.user.id;
 
     if (!isValidId(postId)) {
-      return res.status(400).json({ success: false, message: "Invalid post id, check your post id" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post id, check your post id",
+      });
     }
 
     const existing = await Like.findOne({ user: userId, post: postId });
@@ -46,7 +49,9 @@ export const getLikeStatus = async (req, res) => {
     const userId = req.user._id || req.user.id;
 
     if (!isValidId(postId)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const [count, mine] = await Promise.all([
@@ -72,7 +77,9 @@ export const getPostLikes = async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 
     if (!isValidId(postId)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const likes = await Like.find({ post: postId })

@@ -25,7 +25,9 @@ const createPost = async (req, res) => {
     const { caption } = req.body;
 
     if (!req.file) {
-      return res.status(400).json({ success: false, message: "Image is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Image is required" });
     }
 
     const result = await uploadToCloudinary(req.file.buffer);
@@ -75,12 +77,16 @@ const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const post = await Post.findById(id).populate("user", "username avatar");
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     return res.status(200).json({ success: true, post });
@@ -94,16 +100,22 @@ const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const post = await Post.findById(id);
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     if (post.user.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: "Not allowed to delete this post" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not allowed to delete this post" });
     }
 
     if (post.imagePublicId) {
@@ -123,12 +135,16 @@ const toggleLike = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const post = await Post.findById(id);
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     const userId = req.user.id;
@@ -158,15 +174,21 @@ const addComment = async (req, res) => {
     const { text } = req.body;
 
     if (!isValidId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
     if (!text || !text.trim()) {
-      return res.status(400).json({ success: false, message: "Comment text is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Comment text is required" });
     }
 
     const post = await Post.findById(id);
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     const comment = await Comment.create({
@@ -187,14 +209,18 @@ const getComments = async (req, res) => {
   try {
     const { id } = req.params;
     if (!isValidId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid post id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid post id" });
     }
 
     const comments = await Comment.find({ post: id })
       .sort({ createdAt: -1 })
       .populate("user", "username avatar");
 
-    return res.status(200).json({ success: true, count: comments.length, comments });
+    return res
+      .status(200)
+      .json({ success: true, count: comments.length, comments });
   } catch (error) {
     console.error("getComments error:", error);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -205,16 +231,23 @@ const deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
     if (!isValidId(commentId)) {
-      return res.status(400).json({ success: false, message: "Invalid comment id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid comment id" });
     }
 
     const comment = await Comment.findById(commentId);
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     if (comment.user.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: "Not allowed to delete this comment" });
+      return res.status(403).json({
+        success: false,
+        message: "Not allowed to delete this comment",
+      });
     }
 
     await comment.deleteOne();

@@ -12,6 +12,6 @@ app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", like);
 app.use("/api/v1", instagramRoutes);
 app.use("/api/v1/instagram", instagramRoutes);
-app.use("/instagram", instagramRoutes)
+app.use("/instagram", instagramRoutes);
 
 export { app };
