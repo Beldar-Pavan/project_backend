@@ -21,9 +21,9 @@ const createComment = async (req, res) => {
     }
 
     const comment = await Comment.create({
-      content: content.trim(),
-      video: postId,
-      owner: req.user._id,
+      text: content.trim(),
+      post: postId,
+      user: req.user._id,
     });
 
     return res.status(201).json({
@@ -50,12 +50,12 @@ const getCommentsByPost = async (req, res) => {
     }
 
     const [comments, total] = await Promise.all([
-      Comment.find({ video: postId })
-        .populate("owner", "username email")
+      Comment.find({ post: postId })
+        .populate("user", "username email")
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit),
-      Comment.countDocuments({ video: postId }),
+      Comment.countDocuments({ post: postId }),
     ]);
 
     return res.status(200).json({
@@ -96,13 +96,7 @@ const updateComment = async (req, res) => {
         .json({ success: false, message: "Comment not found" });
     }
 
-    if (comment.owner.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Not allowed to edit this comment" });
-    }
-
-    comment.content = content.trim();
+    comment.text = content.trim();
     await comment.save();
 
     return res.status(200).json({
@@ -111,8 +105,12 @@ const updateComment = async (req, res) => {
       data: comment,
     });
   } catch (error) {
-    console.error("updateComment error:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    console.log("FULL ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      stack: error.stack,
+    });
   }
 };
 
